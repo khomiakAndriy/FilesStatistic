@@ -27,27 +27,24 @@ public class StatisticUtils {
 
     public static Map<String, Integer> getWordsStatisticFromFile(File file) {
         Map<String, Integer> result = new HashMap<String, Integer>();
-        Scanner input= null;
-        try {
-            input = new Scanner(file,"windows-1251");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        input.useDelimiter(" +");
-
-        while(input.hasNextLine()){
-            String line = input.nextLine();
-            String[] words = line.split("[\\s\\p{Punct}]+");
-            for (String word : words
-                    ) {
-                if(word.length()!=0){
-                    if (!result.containsKey(word)){
-                        result.put(word, 1);
-                    } else {
-                        result.put(word, result.get(word)+1);
+        try (Scanner input = new Scanner(file, "windows-1251");) {
+            input.useDelimiter(" +");
+            while (input.hasNextLine()) {
+                String line = input.nextLine();
+                String[] words = line.split("[\\s\\p{Punct}]+");
+                for (String word : words
+                        ) {
+                    if (word.length() != 0) {
+                        if (!result.containsKey(word)) {
+                            result.put(word, 1);
+                        } else {
+                            result.put(word, result.get(word) + 1);
+                        }
                     }
                 }
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return result;
     }
