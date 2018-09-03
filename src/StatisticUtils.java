@@ -35,12 +35,10 @@ public class StatisticUtils {
                 String[] words = line.split("[\\s\\p{Punct}]+");
                 for (String word : words) {
                     if (word.length() != 0) {
-                        synchronized (result){
-                            if (!result.containsKey(word)) {
-                                result.put(word, 1);
-                            } else {
-                                result.put(word, result.get(word) + 1);
-                            }
+                        if (!result.containsKey(word)) {
+                            result.put(word, 1);
+                        } else {
+                            result.put(word, result.get(word) + 1);
                         }
                     }
                 }

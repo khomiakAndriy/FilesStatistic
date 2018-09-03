@@ -16,9 +16,7 @@ public class FileStatistic {
 
         List<Future<Map<String, Integer>>> furures = addFilesToExecutor(files, executor);
 
-        List<Map<String, Integer>> futureResults = convertFutureToMap(furures);
-
-        Map<String, Integer> finalStatistic = getFinalResultFromFutures(futureResults);
+        Map<String, Integer> finalStatistic = getFinalStatistic(furures);
 
         System.out.println("Files statistic:");
         System.out.println("Word - count");
@@ -29,33 +27,23 @@ public class FileStatistic {
     }
 
     private static List<Future<Map<String, Integer>>> addFilesToExecutor(List<File> files, ExecutorService executor) {
-        List<Future<Map<String, Integer>>> furures = new ArrayList<>();
+        List<Future<Map<String, Integer>>> futures = new ArrayList<>();
         for (File file: files){
             Future<Map<String, Integer>> future = executor.submit(new CountWordTask(file));
-            furures.add(future);
+            futures.add(future);
         }
-        return furures;
+        return futures;
     }
 
-    private static List<Map<String, Integer>> convertFutureToMap(List<Future<Map<String, Integer>>> furures) throws InterruptedException, ExecutionException {
-        List<Map<String, Integer>> futureResults = new ArrayList<>();
-        for (Future<Map<String, Integer>> future : furures){
-
-            Map<String, Integer> stringIntegerMap = future.get();
-            futureResults.add(stringIntegerMap);
-        }
-        return futureResults;
-    }
-
-    private static Map<String, Integer> getFinalResultFromFutures(List<Map<String, Integer>> futureResults) {
+    private static  Map<String, Integer> getFinalStatistic(List<Future<Map<String, Integer>>> futures) throws InterruptedException, ExecutionException {
         Map<String, Integer> finalStatistic = new HashMap<>();
 
-        for (Map<String, Integer> var : futureResults){
-            for (Map.Entry<String, Integer> entry : var.entrySet()){
+        for (Future<Map<String, Integer>> future : futures){
+            Map<String, Integer> stringIntegerMap = future.get();
+            for (Map.Entry<String, Integer> entry : stringIntegerMap.entrySet()){
                 String key = entry.getKey();
                 Integer value = entry.getValue();
                 if (!finalStatistic.containsKey(key)){
-
                     finalStatistic.put(key, value);
                 } else {
                     finalStatistic.put(key, finalStatistic.get(key)+value);
