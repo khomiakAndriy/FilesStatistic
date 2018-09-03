@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StatisticUtils {
 
@@ -26,7 +27,7 @@ public class StatisticUtils {
     }
 
     public static Map<String, Integer> getWordsStatisticFromFile(File file) {
-        Map<String, Integer> result = new HashMap<String, Integer>();
+        Map<String, Integer> result = new ConcurrentHashMap<>();
         try (Scanner input = new Scanner(file, "windows-1251");) {
             input.useDelimiter(" +");
             while (input.hasNextLine()) {
