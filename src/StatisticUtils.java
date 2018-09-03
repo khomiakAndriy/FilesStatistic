@@ -33,13 +33,14 @@ public class StatisticUtils {
             while (input.hasNextLine()) {
                 String line = input.nextLine();
                 String[] words = line.split("[\\s\\p{Punct}]+");
-                for (String word : words
-                        ) {
+                for (String word : words) {
                     if (word.length() != 0) {
-                        if (!result.containsKey(word)) {
-                            result.put(word, 1);
-                        } else {
-                            result.put(word, result.get(word) + 1);
+                        synchronized (result){
+                            if (!result.containsKey(word)) {
+                                result.put(word, 1);
+                            } else {
+                                result.put(word, result.get(word) + 1);
+                            }
                         }
                     }
                 }
