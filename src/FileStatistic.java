@@ -1,6 +1,7 @@
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -11,18 +12,39 @@ public class FileStatistic {
         List<File> files = new ArrayList<>();
         StatisticUtils.listFilesFromFolder(files, folder);
 //        ExecutorService executor = Executors.newFixedThreadPool(4);
+        //        executor.shutdown();
 
-        List<Map.Entry<String, Integer>> listOfEntriesFromParralelStreams = files.parallelStream().map(file -> StatisticUtils.getWordsStatisticFromFile(file)).flatMap(map -> map.entrySet().stream()).collect(Collectors.toList());
-        Map<String, Integer> finalStatistic = getFinalStatisticUsingParallelResult(listOfEntriesFromParralelStreams);
-
-        System.out.println("Quantity of unique word " + finalStatistic.size());
-        System.out.println("All words count " + finalStatistic.values().stream().mapToInt(i -> i).sum());
+        Map<String, AtomicInteger> statistic = new HashMap<>();
+        for(File file : files){
+            List<String> words = StatisticUtils.getListOfWordsFromFile(file);
+            words.parallelStream().forEach(e -> {
+                synchronized (statistic) {
+                    if (!statistic.containsKey(e)) {
+                        statistic.put(e, new AtomicInteger(1));
+                    } else {
+                        statistic.put(e, new AtomicInteger(statistic.get(e).incrementAndGet()));
+                    }
+                }
+            });
+        }
+        System.out.println("Size - " +statistic.size());
+        System.out.println("All words count " + statistic.values().stream().mapToInt(i -> i.get()).sum());
         System.out.println("Files statistic:");
         System.out.println("Word - count");
+        statistic.forEach((key, value) -> System.out.println(key + " - " + value));
 
-        finalStatistic.forEach((key, value) -> System.out.println(key + " - " + value));
 
-//        executor.shutdown();
+//        List<Map.Entry<String, Integer>> listOfEntriesFromParralelStreams = files.parallelStream().map(file -> StatisticUtils.getWordsStatisticFromFile(file)).flatMap(map -> map.entrySet().stream()).collect(Collectors.toList());
+//        Map<String, Integer> finalStatistic = getFinalStatisticUsingParallelResult(listOfEntriesFromParralelStreams);
+//
+//        System.out.println("Quantity of unique word " + finalStatistic.size());
+//        System.out.println("All words count " + finalStatistic.values().stream().mapToInt(i -> i).sum());
+//        System.out.println("Files statistic:");
+//        System.out.println("Word - count");
+
+//        finalStatistic.forEach((key, value) -> System.out.println(key + " - " + value));
+
+
     }
 
     private static List<Future<Map<String, Integer>>> addFilesToExecutor(List<File> files, ExecutorService executor) {

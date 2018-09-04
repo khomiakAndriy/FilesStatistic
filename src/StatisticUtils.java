@@ -1,9 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StatisticUtils {
@@ -40,6 +37,25 @@ public class StatisticUtils {
                         } else {
                             result.put(word, result.get(word) + 1);
                         }
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static List<String> getListOfWordsFromFile(File file) {
+        List<String> result = new ArrayList<>();
+        try (Scanner input = new Scanner(file, "windows-1251");) {
+            input.useDelimiter(" +");
+            while (input.hasNextLine()) {
+                String line = input.nextLine();
+                String[] words = line.split("[\\s\\p{Punct}]+");
+                for (String word : words) {
+                    if (word.length() != 0) {
+                        result.add(word);
                     }
                 }
             }
